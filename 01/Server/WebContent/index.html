@@ -1,0 +1,67 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+<script src="jquery-1.9.0.min.js"></script>
+</head>
+<body>
+	
+<textarea id="talkbox" cols=120 rows=30></textarea><br/>
+My Name is <input type=text id='txtfrom'/> and I would like to send to 
+<input type=text id='txtto'><br/>
+Message<input type=text id='txtmessage'>
+<input type="button" value="send" onclick="doSend()"/><br/>
+
+<script>
+function doSend() {
+	var sfrom = $("#txtfrom").val();
+	var sto   = $("#txtto").val();
+	var smsg  = $("#txtmessage").val();
+	var oQuery = {};
+	oQuery.from = sfrom;
+	oQuery.to = sto;
+	oQuery.message=smsg;
+	//oQuery.oper = "query";
+	alert(JSON.stringify(oQuery));
+	doQueryData(oQuery);
+}
+$(function(){
+  // Document is ready
+  setTimeout(doQuery, 3000);
+});
+function doQuery() {
+	var sfrom = $("#txtfrom").val();
+	var oQuery = {};
+	oQuery.from = sfrom;
+	oQuery.oper = "query";
+	doQueryData(oQuery);
+	setTimeout(doQuery, 3000);
+}
+function doQueryData(oQuery) {
+	oQuery.r=Math.random();
+	$.get("/IMServer/IMServer", oQuery, function(data){
+		if (data && data.length>0) {
+			showdata(data) ;
+		}
+	}) ;
+}
+function showdata(data) {
+	if (data && data.length>0) {
+			try {
+				var oData = JSON.parse(data);
+				if (oData && oData.length > 0) {
+					var s=$("#talkbox").val();
+					for(var i = 0; i<oData.length; i++) {
+						var o = oData[i];
+						s = s + "\n" + o.msgTime + " " + o.msgFrom + "对"  + o.msgTo + '说:\n' + o.msgMessage;
+					}
+					$("#talkbox").val(s);
+				}
+			} catch(e) {
+				alert(e);
+			}
+		}
+}
+</script>
+</body>
+</html>
